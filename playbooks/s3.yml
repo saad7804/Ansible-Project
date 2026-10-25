@@ -7,7 +7,7 @@
 
   vars:
     aws_region: ap-south-1
-    bucket_name: "{{ lookup('ansible.builtin.file', '/tmp/contentsphere-bucket-name.txt') | trim }}"
+    bucket_name: "{{ lookup('ansible.builtin.env', 'CONTENTSPHERE_BUCKET_NAME') }}"
     local_file: "{{ playbook_dir }}/../files/contentsphere-test.txt"
     object_key: contentsphere-test.txt
 
