@@ -1,0 +1,38 @@
+---
+- name: Configure managed web server
+  hosts: webserver
+  become: true
+
+  tasks:
+    - name: Ensure Nginx is installed
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: true
+
+    - name: Ensure Nginx is enabled and running
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: Create application directory
+      ansible.builtin.file:
+        path: /opt/ansible-demo
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Create website information page
+      ansible.builtin.copy:
+        dest: /opt/ansible-demo/info.txt
+        content: "Configured using an Ansible playbook.\n"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Ensure demo user exists
+      ansible.builtin.user:
+        name: ansibleuser
+        state: present

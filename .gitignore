@@ -1,0 +1,18 @@
+# Private keys and credentials
+*.pem
+*.key
+credentials
+.env
+.env.*
+
+# Local SSH and AWS configuration
+.ssh/
+.aws/
+inventory
+
+# Temporary files
+*.retry
+__pycache__/
+*.pyc
+
+# Generated reports and local files

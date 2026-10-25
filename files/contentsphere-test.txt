@@ -1,0 +1,2 @@
+ContentSphere AWS automation test
+Created and uploaded using Ansible.

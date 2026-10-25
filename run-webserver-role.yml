@@ -1,0 +1,7 @@
+---
+- name: Deploy ContentSphere using the webserver role
+  hosts: webserver
+  become: true
+
+  roles:
+    - webserver

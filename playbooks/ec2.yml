@@ -1,0 +1,54 @@
+
+---
+- name: Provision ContentSphere EC2 instance
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    aws_region: ap-south-1
+    instance_type: t3.micro
+    instance_name: contentsphere-ansible-task6
+
+  tasks:
+    - name: Find the latest Ubuntu 24.04 LTS AMI
+      amazon.aws.ec2_ami_info:
+        region: "{{ aws_region }}"
+        owners:
+          - 099720109477
+        filters:
+          name:
+            - "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"
+          architecture:
+            - x86_64
+          state:
+            - available
+      register: ubuntu_amis
+
+    - name: Fail if no Ubuntu AMI was found
+      ansible.builtin.fail:
+        msg: "No matching Ubuntu AMI was found in {{ aws_region }}."
+      when: ubuntu_amis.images | length == 0
+
+    - name: Launch ContentSphere EC2 instance
+      amazon.aws.ec2_instance:
+        region: "{{ aws_region }}"
+        name: "{{ instance_name }}"
+        image_id: "{{ (ubuntu_amis.images | sort(attribute='creation_date') | last)['image_id'] }}"
+        instance_type: "{{ instance_type }}"
+        count: 1
+        state: running
+        wait: true
+        network:
+          assign_public_ip: false
+        tags:
+          Project: ContentSphere-Ansible-Task6
+          ManagedBy: Ansible
+      register: launched_instance
+
+    - name: Display created instance details
+      ansible.builtin.debug:
+        msg:
+          - "Instance ID: {{ launched_instance.instances[0].instance_id }}"
+          - "Instance state: {{ launched_instance.instances[0].state.name }}"
+          - "Region: {{ aws_region }}"

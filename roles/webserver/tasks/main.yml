@@ -1,0 +1,54 @@
+---
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: true
+
+- name: Ensure application directory exists
+  ansible.builtin.file:
+    path: "{{ app_directory }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy ContentSphere webpage
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "{{ app_directory }}/index.html"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure Nginx site
+  ansible.builtin.template:
+    src: contentsphere.conf.j2
+    dest: /etc/nginx/sites-available/contentsphere
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Nginx
+
+- name: Enable ContentSphere site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/contentsphere
+    dest: /etc/nginx/sites-enabled/contentsphere
+    state: link
+  notify: Restart Nginx
+
+- name: Remove default Nginx site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Restart Nginx
+
+- name: Validate Nginx configuration
+  ansible.builtin.command: nginx -t
+  changed_when: false
+
+- name: Ensure Nginx is enabled and running
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true

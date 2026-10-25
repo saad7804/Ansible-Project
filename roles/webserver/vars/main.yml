@@ -1,0 +1,4 @@
+---
+app_name: "ContentSphere Platform"
+app_directory: "/var/www/html"
+web_port: 80
